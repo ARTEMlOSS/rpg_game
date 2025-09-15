@@ -7,22 +7,24 @@ class Player
 private:
 	sf::Texture texture;
 
-	//BULLET 1
 	std::vector < sf::RectangleShape> bullets; // list of bullets
-	float bulletSpeed = 0.4f;
-	//BULLET 2
+	float bulletSpeed = 2.0f;
+
+	float speed = 1.0f;
+
+	sf::RectangleShape boundingRectangle; // rect to see collision
+	sf::Vector2i size; // size of bounding box
+
 public:
 	sf::Sprite sprite;
-	float speed = 0.3f;
-	// constructor is needed because "sprite" needs a argument
-	Player() : sprite(texture) {}; 
+	Player() : sprite(texture) {}; 	// constructor is needed because "sprite" needs a argument
 
 public:
 
 	void Initialize();// <- called once per app start
 	void Load(); // <- called once per app start
 
-	void Update(Skeleton& skeleton); // <- once per frame
+	void Update(float deltaTime, Skeleton& skeleton); // <- once per frame
 	void Draw(sf::RenderWindow& window);// <- once per frame
 };
 
