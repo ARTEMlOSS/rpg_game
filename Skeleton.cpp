@@ -1,6 +1,11 @@
 #include "Skeleton.h"
 #include <iostream>
 
+Skeleton::Skeleton() :
+    sprite(texture), speed(0)
+{
+}
+
 void Skeleton::Initialize()
 {
     boundingRectangle.setFillColor(sf::Color::Transparent);
