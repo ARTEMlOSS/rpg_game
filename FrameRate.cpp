@@ -2,7 +2,7 @@
 #include <iostream>
 
 FrameRate::FrameRate() :
-    frameRateText(font), frameRateCount(0)
+    frameRateCount(0)
 {
 }
 
@@ -16,14 +16,14 @@ void FrameRate::Initialize()
 
 void FrameRate::Load()
 {
-    if (font.openFromFile("assets/fonts/arial.ttf"))
+    if (font.loadFromFile("assets/fonts/arial.ttf"))
     {
-        std::cout << "Font arial.ttf loaded" << std::endl;
+        std::cout << "Loaded font arial.ttf" << std::endl;
         frameRateText.setFont(font);// if font is loaded so set it
     }
     else
     {
-        std::cout << "Font arial.ttf Failed to load" << std::endl;
+        std::cout << "Failed to load font arial.ttf" << std::endl;
     }
 }
 

@@ -13,7 +13,7 @@ sf::Vector2f Math::NormalizeVector(sf::Vector2f vector)
 
 bool Math::DidRectCollide(sf::FloatRect rect1, sf::FloatRect rect2)
 {
-    if (rect1.findIntersection(rect2))
+    if (rect1.intersects(rect2))
         return true;
     return false;
 }

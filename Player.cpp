@@ -3,7 +3,7 @@
 #include "Math.h"
 
 Player::Player() :
-    sprite(texture), bulletSpeed(2.0f), speed(1.0f)
+     speed(1.0f), maxFireRate(250), fireRateTimer(0) // 1000 milliseconds
 {
 }
 
@@ -20,7 +20,7 @@ void Player::Load()
 {
     if (texture.loadFromFile("D:\\rpg_game\\assets\\player\\textures\\spritesheet.png"))
     {
-        std::cout << "player loaded" << std::endl;
+        std::cout << "Loaded player" << std::endl;
         sprite.setTexture(texture);
         sprite.setPosition(sf::Vector2f(1550, 700));
         int Xindex = 0;
@@ -35,7 +35,7 @@ void Player::Load()
     }
 }
 
-void Player::Update(float deltaTime, Skeleton& skeleton)
+void Player::Update(float deltaTime, Skeleton& skeleton, sf::Vector2f& mousePosition, const sf::Vector2f& windowSize)
 {
     sf::Vector2f position = sprite.getPosition(); //get current position
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
@@ -48,31 +48,44 @@ void Player::Update(float deltaTime, Skeleton& skeleton)
         sprite.setPosition(position + sf::Vector2f(0, 1) * speed * deltaTime);
 
     //BULLET
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-    {
-        bullets.push_back(sf::RectangleShape(sf::Vector2f(25, 15))); // add a bullet to list
-        // set the first bullet's position of the last bullet the same as the player's
-        int i = bullets.size() - 1;
-        bullets[i].setPosition(sprite.getPosition());
+    fireRateTimer += deltaTime; // we add frame time untill it's 1000 (1 second)
+    // so we can shoot only once a second
 
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && fireRateTimer >= maxFireRate)
+    {
+        bullets.push_back(Bullet()); // add a bullet to list
+        // set the first bullet's position of the last bullet the same as the player's
+        int i = bullets.size() - 1; // last bullet that was pushed
+        bullets[i].Initialize(sprite.getPosition(), mousePosition, 0.5f);
+        fireRateTimer = 0; // reset timer after shooting
     }
 
     // MOVE BULLET
     for (size_t i = 0; i < bullets.size(); i++)
     {
-        sf::Vector2f bulletDirection = skeleton.sprite.getPosition() - bullets[i].getPosition(); // destination point
-        bulletDirection = Math::NormalizeVector(bulletDirection); // make x and y to the destination point very small 
-        bullets[i].setPosition(bullets[i].getPosition() + bulletDirection * bulletSpeed * deltaTime); //fire, change position every frame
+        bullets[i].Update(deltaTime);
+        if (skeleton.health > 0)
+        { // detect collision
+            if (Math::DidRectCollide(bullets[i].GetGlobalBounds(), skeleton.sprite.getGlobalBounds()))
+            {
+                skeleton.ChangeHealth(-10); // reduce hp only when collides 
+                bullets.erase(bullets.begin() + i); // delete bullet
+                std::cout << "Skeleton health: " << skeleton.health << std::endl;
+            }
+        }
+        // if bullet is out of the screen
+        if ((bullets[i].GetPosition().x > windowSize.x || bullets[i].GetPosition().x < 0) ||
+            ((bullets[i].GetPosition().y > windowSize.y || bullets[i].GetPosition().y < 0)))
+        {
+            bullets.erase(bullets.begin() + i); // delete bullet
+            std::cout << "Bullet destroyed, " << bullets.size() << " bullets left" << std::endl;
+        }
     }
 
     // make bounder follow the player
     boundingRectangle.setPosition(sprite.getPosition());
 
-    // detect collision
-    if (Math::DidRectCollide(sprite.getGlobalBounds(), skeleton.sprite.getGlobalBounds()))
-    {
-        std::cout << "COLLISION" << std::endl;
-    }
+    
 }
 
 void Player::Draw(sf::RenderWindow& window)
@@ -82,8 +95,5 @@ void Player::Draw(sf::RenderWindow& window)
 
     //DRAW BULLET
     for (size_t i = 0; i < bullets.size(); i++)
-    {
-        window.draw(bullets[i]);
-    }
-
+       bullets[i].Draw(window);
 }

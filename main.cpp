@@ -1,38 +1,44 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+
 #include "FrameRate.h"
+#include "Map.h"
 #include "Player.h"
 #include "Skeleton.h"
 
 int main()
 {
     sf::ContextSettings settings;
-    settings.antiAliasingLevel = 8; // set anti-alias and creates the window
-    sf::RenderWindow window(sf::VideoMode({ 1920, 1000 }), "My window", sf::Style::Default, sf::State::Windowed, settings);   
+    settings.antialiasingLevel = 8; // set anti-alias
     //window.setVerticalSyncEnabled(true); //it makes frame rate stick to monitor's FPS
+    sf::RenderWindow window(sf::VideoMode(1920, 1000), "My window", sf::Style::Default);
     window.setFramerateLimit(60);
-
+    sf::Vector2f windowSize = sf::Vector2f(window.getSize());
 
     FrameRate frameRate;
+    Map map;
     Player player;
     Skeleton skeleton;
 
     //--------------------------- INIT ---------------------------
     frameRate.Initialize();
+    map.Initialize();
     player.Initialize();
     skeleton.Initialize();
     //--------------------------- INIT ---------------------------
 
 
     //--------------------------- LOAD ---------------------------
-    //LOAD FONTS
-
+    std::cout << std::endl;
     frameRate.Load();
+    map.Load();
     player.Load();
     skeleton.Load();
+    std::cout << std::endl;
     //--------------------------- LOAD ---------------------------
     
     sf::Clock clock;
+    sf::Event event;
 
     // MAIN GAME LOOP
     while (window.isOpen()) // run the program as long as the window is open
@@ -43,30 +49,31 @@ int main()
         sf::Time deltaTimeTimer = clock.restart(); 
         float deltaTime = deltaTimeTimer.asMilliseconds();
 
-
         //--------------------------- UPDATE START ---------------------------
-   
         // EVENT LOOP
-        while (const std::optional event = window.pollEvent()) 
+        while (window.pollEvent(event)) 
         {
-            if (event->is<sf::Event::Closed>())
+            if (event.type == sf::Event::Closed)
                 window.close();
         }
 
         // TO UPDATE OUTSIDE OF THE EVENT LOOF IS FASTER
-        frameRate.Update(deltaTime);
-        skeleton.Update(deltaTime);
-        player.Update(deltaTime, skeleton);
+        // we pass "window" in "getPosition(window)" to calculate mouse relatevely window, not the screen
+        sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(window)); // we shouldn't call mouse in "updates"
 
+        frameRate.Update(deltaTime);
+        map.Update(deltaTime);
+        skeleton.Update(deltaTime);
+        player.Update(deltaTime, skeleton, mousePosition, windowSize);
         // --------------------------- UPDATE END ---------------------------
 
         //--------------------------- DRAW START ---------------------------
-        window.clear(sf::Color::Black); // clear the window with black color
+        window.clear(); // clear the window with black color
 
+        map.Draw(window);
         skeleton.Draw(window);
         player.Draw(window);
         frameRate.Draw(window);
-
 
         window.display();
         //--------------------------- DRAW END ---------------------------
