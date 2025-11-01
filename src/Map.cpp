@@ -3,14 +3,16 @@
 
 
 Map::Map() :
-   tileWidth(16), tileHeight(16), totalTilesX(0), totalTilesY(0),
-    totalTiles(0), mapWidth(3), mapHeight(2), tiles(nullptr)
+    totalTilesX(0), totalTilesY(0),
+    totalTiles(0), tiles(nullptr), mapSprites(nullptr)
 {
 
 }
 
 Map::~Map()
 {
+    delete[] mapSprites;
+    delete[] tiles;
 }
 
 void Map::Initialize()
@@ -18,13 +20,17 @@ void Map::Initialize()
 
 }
 
-void Map::Load()
-{
+void Map::Load(std::string filename)
+{//"assets/maps/level1.rmap"
 
-    if (tileSheetTexture.loadFromFile("D:\\rpg_game\\assets\\world\\prison\\tilesheet.png"))
+    mapLoader.Load(filename, md);
+
+    mapSprites = new sf::Sprite[md.dataSize];
+
+    if (tileSheetTexture.loadFromFile(md.tilesheet))
     {
-        totalTilesX = tileSheetTexture.getSize().x / tileWidth; // 24
-        totalTilesY = tileSheetTexture.getSize().y / tileHeight; // 12
+        totalTilesX = tileSheetTexture.getSize().x / md.tileWidth; // 24
+        totalTilesY = tileSheetTexture.getSize().y / md.tileHeight; // 12
 
         totalTiles = totalTilesX * totalTilesY;
 
@@ -44,7 +50,7 @@ void Map::Load()
                 int i = x + (y * totalTilesX);   
                 tiles[i].id = i;
                 //std::cout << "i = " << i << std::endl;
-                tiles[i].position = sf::Vector2i(x * tileWidth, y * tileHeight);
+                tiles[i].position = sf::Vector2i(x * md.tileWidth, y * md.tileHeight);
             }
         }
     }
@@ -54,22 +60,22 @@ void Map::Load()
     }
 
     // CREATE THE MAP BY APPLYING TILE TEXTURES TO THE SPRITES IN THE SPRITE ARRAY
-    for (int y = 0; y < mapHeight; y++)
+    for (int y = 0; y < md.mapHeight; y++)
     {
-        for (int x = 0; x < mapWidth; x++)
+        for (int x = 0; x < md.mapWidth; x++)
         {
-            int i = x + (y * 3);
-            int index = mapNumbers[i]; // we go through the numbers which will be used as indexes
+            int i = x + (y * md.mapWidth);
+            int index = md.data[i]; // we go through the numbers which will be used as indexes
             mapSprites[i].setTexture(tileSheetTexture);
             mapSprites[i].setTextureRect(sf::IntRect(
                 tiles[index].position.x,
                 tiles[index].position.y,
-                tileWidth,
-                tileHeight)
+                md.tileWidth,
+                md.tileHeight)
             );
-            mapSprites[i].setPosition(sf::Vector2f(x * tileWidth * mapSprites[i].getScale().x,
-                y * tileHeight * mapSprites[i].getScale().y));
-            mapSprites[i].setScale(sf::Vector2f(4, 4));
+            mapSprites[i].setPosition(sf::Vector2f(x * md.tileWidth * md.scaleX,
+                y * md.tileHeight * md.scaleY));
+            mapSprites[i].setScale(sf::Vector2f(md.scaleX, md.scaleY));
         }
     }
 }
@@ -80,7 +86,7 @@ void Map::Update(float deltaTime)
 
 void Map::Draw(sf::RenderWindow& window)
 {
-     for (int i = 0; i < mapSize; i++)
+     for (int i = 0; i < md.dataSize; i++)
     {
         window.draw(mapSprites[i]);
     }

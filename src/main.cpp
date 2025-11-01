@@ -6,8 +6,6 @@
 #include "Player.h"
 #include "Skeleton.h"
 
-#include "MapLoader.h"
-
 int main()
 {
     sf::ContextSettings settings;
@@ -21,8 +19,7 @@ int main()
     Map map;
     Player player;
     Skeleton skeleton;
-    MapLoader mapLoader;
-    mapLoader.Load("assets/maps/level1.rmap");
+
     //--------------------------- INIT ---------------------------
     frameRate.Initialize();
     map.Initialize();
@@ -34,7 +31,7 @@ int main()
     //--------------------------- LOAD ---------------------------
     std::cout << std::endl;
     frameRate.Load();
-    map.Load();
+    map.Load("assets/maps/level1.rmap");
     player.Load();
     skeleton.Load();
     std::cout << std::endl;

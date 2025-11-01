@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
 #include "Tile.h"
+#include "MapLoader.h"
+#include "MapData.h"
 
 class Map
 {;
@@ -11,27 +13,21 @@ private:
 	//we create a pointer to the array which is situated in Map.cpp on the heap
 	Tile* tiles; // <- it's the whole numered table of tiles 
 
-	int totalTiles;
+	MapLoader mapLoader;
+	MapData md;
 
-	int tileWidth;
-	int tileHeight;
+	int totalTiles;
 
 	int totalTilesX;
 	int totalTilesY;
 
-	static const int mapSize = 6;
-	int mapWidth;
-	int mapHeight;
-
-	int mapNumbers[mapSize] = {120, 121, 122, 144, 145, 146}; // <- it's the actual map to draw, bunch of indexes
-
-	sf::Sprite mapSprites[mapSize];
+	sf::Sprite* mapSprites;//it's a pointer because we don't know the size now
 public:
 	Map();
 	~Map();
 
 	void Initialize();// <- called once per app start
-	void Load(); // <- called once per app start
+	void Load(std::string filename); // <- called once per app start
 	void Update(float deltaTime); // <- once per frame
 	void Draw(sf::RenderWindow& window);// <- once per frame
 };
