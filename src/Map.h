@@ -19,9 +19,13 @@ private:
 	int totalTilesX;
 	int totalTilesY;
 
-	int mapNumbers[6] = {120, 121, 122, 144, 145, 146}; // <- it's the actual map to draw, bunch of indexes
+	static const int mapSize = 6;
+	int mapWidth;
+	int mapHeight;
 
-	sf::Sprite mapSprites[6];
+	int mapNumbers[mapSize] = {120, 121, 122, 144, 145, 146}; // <- it's the actual map to draw, bunch of indexes
+
+	sf::Sprite mapSprites[mapSize];
 public:
 	Map();
 	~Map();

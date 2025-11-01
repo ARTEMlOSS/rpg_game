@@ -3,7 +3,8 @@
 
 
 Map::Map() :
-   tileWidth(16), tileHeight(16), totalTilesX(0), totalTilesY(0)
+   tileWidth(16), tileHeight(16), totalTilesX(0), totalTilesY(0),
+    totalTiles(0), mapWidth(3), mapHeight(2), tiles(nullptr)
 {
 
 }
@@ -53,9 +54,9 @@ void Map::Load()
     }
 
     // CREATE THE MAP BY APPLYING TILE TEXTURES TO THE SPRITES IN THE SPRITE ARRAY
-    for (int y = 0; y < 2; y++)
+    for (int y = 0; y < mapHeight; y++)
     {
-        for (int x = 0; x < 3; x++)
+        for (int x = 0; x < mapWidth; x++)
         {
             int i = x + (y * 3);
             int index = mapNumbers[i]; // we go through the numbers which will be used as indexes
@@ -66,7 +67,8 @@ void Map::Load()
                 tileWidth,
                 tileHeight)
             );
-            mapSprites[i].setPosition(sf::Vector2f(x * 16 * 4, y * 16 * 4));
+            mapSprites[i].setPosition(sf::Vector2f(x * tileWidth * mapSprites[i].getScale().x,
+                y * tileHeight * mapSprites[i].getScale().y));
             mapSprites[i].setScale(sf::Vector2f(4, 4));
         }
     }
@@ -78,7 +80,7 @@ void Map::Update(float deltaTime)
 
 void Map::Draw(sf::RenderWindow& window)
 {
-     for (int i = 0; i < 6; i++)
+     for (int i = 0; i < mapSize; i++)
     {
         window.draw(mapSprites[i]);
     }
